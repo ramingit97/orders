@@ -7,21 +7,38 @@ import { RmqService } from './rmq/rmq.service';
 async function bootstrap() {
   const appTcp = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
+    // {
+    //   transport: Transport.TCP,
+    //   options: {
+    //     host: 'order-service',
+    //     port: 6000,
+    //   },
+    // },
     {
-      transport: Transport.TCP,
+      transport: Transport.KAFKA,
       options: {
-        host: 'order-service',
-        port: 6000,
+        client: {
+          clientId: `consumer-orders`,
+          brokers: ['kafka-0:9092','kafka-1:9092'],
+        },
+        consumer: {
+          groupId: 'auth-consumer',
+        },
       },
     },
+    
   );
-  const rmqService = appTcp.get<RmqService>(RmqService);
-  const appRmq = await NestFactory.createMicroservice<MicroserviceOptions>(
-    AppModule,
-    rmqService.getOptions('order_queue')
-  );
+  // const rmqService = appTcp.get<RmqService>(RmqService);
+  // const appRmq = await NestFactory.createMicroservice<MicroserviceOptions>(
+  //   AppModule,
+  //   rmqService.getOptions('order_queue')
+  // );
+
+
+
+
 
   await appTcp.listen();
-  await appRmq.listen();
+  // await appRmq.listen();
 }
 bootstrap();

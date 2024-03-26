@@ -4,9 +4,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSource } from './ormconfig';
 import { RmqModule } from './rmq/rmq.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot({}),
     ConfigModule.forRoot({
       isGlobal:true,
       envFilePath:'./.development.env'
