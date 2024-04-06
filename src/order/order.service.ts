@@ -16,9 +16,6 @@ export class OrderService {
             description,
             userId
         });
-
-        console.log('newenenene',newEntity);
-        
         return await this.orderRepo.create(newEntity);
     }
 

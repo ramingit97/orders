@@ -15,23 +15,39 @@ export class OrderController {
             private eventEmitter: EventEmitter2
     ){}
 
+    @MessagePattern("list")
+    async list(){
+      let res = await this.orderService.getAll();
+      return res;
+    }
+    @MessagePattern("orders.create")
+    async createPost(@Payload() data:any){
+        let result = await this.orderService.create(data);
+        return result;
+    }
+
+
+    @EventPattern("orders.create")
+    async createPostEvent(@Payload() data:any){
+        console.log('data1111',data);
+    }
     
-    
-    // @MessagePattern("create")
-    // async createPost(@Payload() data:any){
-    //     console.log('data222222222222',data);
-        
-    //     // let result = await this.orderService.create(data);
-    //     // return result;
-    // }
-    
-    @EventPattern("orders")
+    @MessagePattern("orders")
     async createPost2(@Payload() data:any,@Ctx() context:KafkaContext){
         // let eventType = context.getMessage().headers['eventType'] as string;
         // this.eventEmitter.emit(eventType, data);
         console.log(`Partition - ${context.getPartition()} - ${context.getConsumer()}`);
-        
-        this.getHome()
+        // console.log("data get",data);
+        // return {result:'ramin'};
+
+      return {
+        headers: {
+          kafka_nestRealm: "ramin"
+        },
+        key: "ramin",
+        value: {result:"ramin"}
+      }
+        // this.getHome()
     }
 
     @OnEvent("orders.create")
