@@ -21,15 +21,24 @@ export class OrderController {
       return res;
     }
     @MessagePattern("orders.create")
-    async createPost(@Payload() data:any){
+    async create_order(@Payload() data:any){
         let result = await this.orderService.create(data);
+        console.log("result222",result);
+        return result;
+    }
+
+    @MessagePattern("orders.cancel")
+    async cancel_order(@Payload() {id}:{id:number}){
+        console.log("iddd222",id);
+        
+        let result = await this.orderService.cancel(id);
         return result;
     }
 
 
     @EventPattern("orders.create")
     async createPostEvent(@Payload() data:any){
-        console.log('data1111',data);
+        console.log('2222',data);
     }
     
     @MessagePattern("orders")

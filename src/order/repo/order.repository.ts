@@ -25,4 +25,14 @@ export class OrderRepository{
     async deleteAll(){
         return await this.orderRepo.delete({});
     }
+
+    async update(id: number, updatedData: Partial<OrderEntity>) {
+        const order = await this.orderRepo.findOne({ where: { id } });
+        if (!order) {
+            // Handle case where order with provided id doesn't exist
+            return null;
+        }
+        await this.orderRepo.update({ id }, updatedData);
+        return await this.orderRepo.findOne({ where: { id } });
+    }
 }

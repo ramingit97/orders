@@ -1,5 +1,7 @@
 import {Entity,Column,PrimaryGeneratedColumn} from 'typeorm'
-import { IOrder } from './order.interface';
+import { IOrder, OrderStatus } from './order.interface';
+
+
 
 
 @Entity('order')
@@ -15,15 +17,30 @@ export class OrderEntity implements IOrder {
     description:string;
 
 
+    @Column("enum",{
+        nullable:true,
+        default:undefined,
+        enum:OrderStatus,
+    })
+    status:OrderStatus;
+
+
     @Column()
     userId:string;
 
-    constructor(post:IOrder){
+    constructor(post:Partial<IOrder>){
         if(post){
-            this.name = post.name;
-            this.description = post.description;
-            this.userId = post.userId;
+            Object.assign(this,post)
+            this.status = post.status??OrderStatus.Progress;
         }
+    }
+
+    async cancel(){
+        this.status = OrderStatus.Canceled;
+    }
+
+    async completed(){
+        this.status = OrderStatus.Completed;
     }
   
 }
