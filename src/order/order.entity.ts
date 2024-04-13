@@ -1,4 +1,4 @@
-import {Entity,Column,PrimaryGeneratedColumn} from 'typeorm'
+import {Entity,Column,PrimaryGeneratedColumn,PrimaryColumn} from 'typeorm'
 import { IOrder, OrderStatus } from './order.interface';
 
 
@@ -7,7 +7,8 @@ import { IOrder, OrderStatus } from './order.interface';
 @Entity('order')
 export class OrderEntity implements IOrder {
 
-    @PrimaryGeneratedColumn()
+    // @PrimaryGeneratedColumn()
+    @PrimaryColumn("uuid")
     id:number;
 
     @Column()
@@ -30,6 +31,7 @@ export class OrderEntity implements IOrder {
 
     constructor(post:Partial<IOrder>){
         if(post){
+            console.log("post",post);
             Object.assign(this,post)
             this.status = post.status??OrderStatus.Progress;
         }

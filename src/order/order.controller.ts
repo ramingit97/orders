@@ -7,6 +7,14 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { readFileSync } from 'fs';
 
 
+const settime  = ()=>{
+  return new Promise((res)=>{
+    setTimeout(()=>{
+      res(100);
+    },20000);
+  })
+}
+
 @Controller('')
 export class OrderController {
     
@@ -23,15 +31,18 @@ export class OrderController {
     @MessagePattern("orders.create")
     async create_order(@Payload() data:any){
         let result = await this.orderService.create(data);
-        console.log("result222",result);
         return result;
     }
 
     @MessagePattern("orders.cancel")
     async cancel_order(@Payload() {id}:{id:number}){
-        console.log("iddd222",id);
-        
         let result = await this.orderService.cancel(id);
+        return result;
+    }
+
+    @MessagePattern("orders.completed")
+    async complete_order(@Payload() {id}:{id:number}){
+        let result = await this.orderService.complete(id);
         return result;
     }
 

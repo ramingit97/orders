@@ -11,8 +11,9 @@ export class OrderService {
             private readonly orderRepo:OrderRepository
     ){}
 
-    async create({name,description,userId}:OrderCreateDto){
+    async create({name,description,userId,id}:OrderCreateDto){
         const newEntity = await new OrderEntity({
+            id,
             name,
             description,
             userId
@@ -32,6 +33,12 @@ export class OrderService {
     async cancel(id:number){
         const orderEntity = await new OrderEntity({})
         orderEntity.cancel();
+        return await this.orderRepo.update(id,orderEntity);
+    }
+
+    async complete(id:number){
+        const orderEntity = await new OrderEntity({})
+        orderEntity.completed();
         return await this.orderRepo.update(id,orderEntity);
     }
 
