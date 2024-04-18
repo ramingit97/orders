@@ -1,10 +1,11 @@
 import { Body, Controller, Get, Header, Headers, HttpException, HttpStatus, Inject, NotFoundException, Post, Request, Res, UnauthorizedException, UseGuards, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
-import { Ctx, EventPattern, KafkaContext, MessagePattern, Payload, RmqContext, RpcException, TcpContext } from '@nestjs/microservices';
+import { Client, ClientKafka, Ctx, EventPattern, KafkaContext, MessagePattern, Payload, RmqContext, RpcException, TcpContext, Transport } from '@nestjs/microservices';
 import { RmqService } from 'src/rmq/rmq.service';
 import { OrderService } from './order.service';
 import { OrderCreateDto } from './dto/order-create.dto';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { readFileSync } from 'fs';
+import { client1 } from 'src/main';
 
 
 const settime  = ()=>{
@@ -17,10 +18,25 @@ const settime  = ()=>{
 
 @Controller('')
 export class OrderController {
-    
+  
+  @Client({
+    transport: Transport.KAFKA,
+    options: {
+      client: {
+        clientId: 'consumer-orders', // hero-client
+        brokers: ['kafka-0:9092','kafka-1:9092'],
+      },
+      consumer: {
+        groupId: 'consumer-orders' // hero-consumer-client
+      }
+    }
+  })
+  client: ClientKafka;
+
+
     constructor(private orderService:OrderService,
             private rmqService:RmqService,
-            private eventEmitter: EventEmitter2
+            private eventEmitter: EventEmitter2,
     ){}
 
     @MessagePattern("list")
@@ -52,13 +68,32 @@ export class OrderController {
         console.log('2222',data);
     }
     
-    @MessagePattern("orders")
+    @EventPattern("orders")
     async createPost2(@Payload() data:any,@Ctx() context:KafkaContext){
         // let eventType = context.getMessage().headers['eventType'] as string;
         // this.eventEmitter.emit(eventType, data);
         console.log(`Partition - ${context.getPartition()} - ${context.getConsumer()}`);
         // console.log("data get",data);
         // return {result:'ramin'};
+        // const { offset } = context.getMessage();
+        // console.log("fffff222",offset);
+
+
+        const { offset } = context.getMessage();
+        const partition = context.getPartition();
+        const topic = context.getTopic();
+        // await this.client.commitOffsets([
+        //   {topic,partition,offset}
+        // ])
+
+        console.log('offset',offset);
+        
+
+        context.getConsumer().commitOffsets([
+          { topic, partition, offset: (Number(offset) + 1).toString()  }
+        ])
+        // await this.client.commitOffsets([{ topic, partition, offset }])
+        
 
       return {
         headers: {

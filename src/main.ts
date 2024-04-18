@@ -4,22 +4,27 @@ import { MicroserviceOptions, RmqOptions, Transport } from '@nestjs/microservice
 import { Logger } from '@nestjs/common';
 import { RmqService } from './rmq/rmq.service';
 
+export const client1:MicroserviceOptions = {
+  transport: Transport.KAFKA,
+  options: {
+    client: {
+      clientId: `consumer-orders`,
+      brokers: ['kafka-0:9092','kafka-1:9092'],
+    },
+    consumer: {
+      groupId: 'consumer-orders',
+    },
+    run:{
+      autoCommit:false,
+      // autoCommitInterval:6000
+    }
+  },
+};
+
 async function bootstrap() {
   const appTcp = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
-   
-    {
-      transport: Transport.KAFKA,
-      options: {
-        client: {
-          clientId: `consumer-orders`,
-          brokers: ['kafka-0:9092','kafka-1:9092'],
-        },
-        consumer: {
-          groupId: 'consumer-orders',
-        },
-      },
-    },
+    client1
     
   );
   // const rmqService = appTcp.get<RmqService>(RmqService);
